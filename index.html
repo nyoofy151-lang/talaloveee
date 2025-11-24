@@ -64,13 +64,17 @@
         word-break: break-word;
     }
 
-    .deleteBtn {
+    .deleteBtn, .editBtn, .saveBtn {
         background: transparent;
         border: none;
-        color: #d6006e;
         cursor: pointer;
         font-size: 18px;
+        margin-left: 5px;
     }
+
+    .deleteBtn { color: #d6006e; }
+    .editBtn { color: #1a73e8; }
+    .saveBtn { color: #00a600; }
 
     #messageInput {
         width: 60%;
@@ -165,12 +169,11 @@
     }
     typeEffect();
 
-    /* دردشة مع حفظ الرسائل وحذف رسالة محددة */
+    /* دردشة مع حفظ الرسائل، حذف وتعديل */
     const chatBox = document.getElementById("chatBox");
     const input = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    // تحميل الرسائل من التخزين
     function loadMessages() {
         const saved = localStorage.getItem("messages");
         if (saved) {
@@ -179,7 +182,6 @@
         }
     }
 
-    // إضافة رسالة للصندوق
     function addMessage(text) {
         const msgDiv = document.createElement("div");
         msgDiv.classList.add("message");
@@ -188,41 +190,79 @@
         span.classList.add("msg-text");
         span.textContent = "💬 " + text;
 
+        // زر تعديل
+        const editBtn = document.createElement("button");
+        editBtn.classList.add("editBtn");
+        editBtn.textContent = "✏️";
+        editBtn.onclick = () => editMessage(span, text);
+
+        // زر حذف
         const delBtn = document.createElement("button");
         delBtn.classList.add("deleteBtn");
         delBtn.textContent = "🗑️";
         delBtn.onclick = () => deleteMessage(msgDiv, text);
 
         msgDiv.appendChild(span);
+        msgDiv.appendChild(editBtn);
         msgDiv.appendChild(delBtn);
         chatBox.appendChild(msgDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // إرسال رسالة
     sendBtn.onclick = () => {
         if (input.value.trim() === "") return;
         const msg = input.value;
         addMessage(msg);
+        saveMessage(msg);
+        input.value = "";
+    };
 
-        // حفظ الرسالة
+    function saveMessage(msg) {
         let saved = localStorage.getItem("messages");
         let messages = saved ? JSON.parse(saved) : [];
         messages.push(msg);
         localStorage.setItem("messages", JSON.stringify(messages));
+    }
 
-        input.value = "";
-    };
-
-    // حذف رسالة معينة
     function deleteMessage(element, text) {
         element.remove();
         let saved = localStorage.getItem("messages");
         if (saved) {
             let messages = JSON.parse(saved);
-            messages = messages.filter(msg => msg !== text); // حذف الرسالة المطابقة
+            messages = messages.filter(msg => msg !== text);
             localStorage.setItem("messages", JSON.stringify(messages));
         }
+    }
+
+    function editMessage(span, oldText) {
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.value = oldText;
+        inputField.style.flex = "1";
+        span.replaceWith(inputField);
+
+        const saveBtn = document.createElement("button");
+        saveBtn.classList.add("saveBtn");
+        saveBtn.textContent = "💾";
+        inputField.parentNode.insertBefore(saveBtn, inputField.nextSibling);
+
+        saveBtn.onclick = () => {
+            const newText = inputField.value;
+            inputField.replaceWith(span);
+            saveBtn.remove();
+            span.textContent = "💬 " + newText;
+
+            // تحديث الرسائل في التخزين
+            let saved = localStorage.getItem("messages");
+            if (saved) {
+                let messages = JSON.parse(saved);
+                const index = messages.indexOf(oldText);
+                if (index > -1) {
+                    messages[index] = newText;
+                    localStorage.setItem("messages", JSON.stringify(messages));
+                }
+            }
+        };
     }
 
     loadMessages();
@@ -238,7 +278,6 @@
         heart.style.animationDuration = (3 + Math.random() * 3) + "s";
 
         document.body.appendChild(heart);
-
         setTimeout(() => heart.remove(), 6000);
     }
 
