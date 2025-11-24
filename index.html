@@ -56,12 +56,19 @@
         padding: 10px;
         border-radius: 10px;
         margin: 5px 0;
+        flex-wrap: wrap;
     }
 
     .msg-text {
         flex: 1;
         margin-right: 10px;
         word-break: break-word;
+    }
+
+    .msg-time {
+        font-size: 12px;
+        color: #7a0058;
+        margin-left: auto;
     }
 
     .deleteBtn, .editBtn, .saveBtn {
@@ -169,7 +176,6 @@
     }
     typeEffect();
 
-    /* دردشة مع حفظ الرسائل، حذف وتعديل */
     const chatBox = document.getElementById("chatBox");
     const input = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendBtn");
@@ -178,11 +184,11 @@
         const saved = localStorage.getItem("messages");
         if (saved) {
             const messages = JSON.parse(saved);
-            messages.forEach(msg => addMessage(msg));
+            messages.forEach(msgObj => addMessage(msgObj.text, msgObj.time));
         }
     }
 
-    function addMessage(text) {
+    function addMessage(text, time) {
         const msgDiv = document.createElement("div");
         msgDiv.classList.add("message");
 
@@ -190,19 +196,22 @@
         span.classList.add("msg-text");
         span.textContent = "💬 " + text;
 
-        // زر تعديل
+        const timeSpan = document.createElement("span");
+        timeSpan.classList.add("msg-time");
+        timeSpan.textContent = time;
+
         const editBtn = document.createElement("button");
         editBtn.classList.add("editBtn");
         editBtn.textContent = "✏️";
-        editBtn.onclick = () => editMessage(span, text);
+        editBtn.onclick = () => editMessage(span, timeSpan, text);
 
-        // زر حذف
         const delBtn = document.createElement("button");
         delBtn.classList.add("deleteBtn");
         delBtn.textContent = "🗑️";
-        delBtn.onclick = () => deleteMessage(msgDiv, text);
+        delBtn.onclick = () => deleteMessage(msgDiv, text, time);
 
         msgDiv.appendChild(span);
+        msgDiv.appendChild(timeSpan);
         msgDiv.appendChild(editBtn);
         msgDiv.appendChild(delBtn);
         chatBox.appendChild(msgDiv);
@@ -212,29 +221,31 @@
     sendBtn.onclick = () => {
         if (input.value.trim() === "") return;
         const msg = input.value;
-        addMessage(msg);
-        saveMessage(msg);
+        const now = new Date();
+        const time = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        addMessage(msg, time);
+        saveMessage(msg, time);
         input.value = "";
     };
 
-    function saveMessage(msg) {
+    function saveMessage(msg, time) {
         let saved = localStorage.getItem("messages");
         let messages = saved ? JSON.parse(saved) : [];
-        messages.push(msg);
+        messages.push({text: msg, time: time});
         localStorage.setItem("messages", JSON.stringify(messages));
     }
 
-    function deleteMessage(element, text) {
+    function deleteMessage(element, text, time) {
         element.remove();
         let saved = localStorage.getItem("messages");
         if (saved) {
             let messages = JSON.parse(saved);
-            messages = messages.filter(msg => msg !== text);
+            messages = messages.filter(msgObj => !(msgObj.text === text && msgObj.time === time));
             localStorage.setItem("messages", JSON.stringify(messages));
         }
     }
 
-    function editMessage(span, oldText) {
+    function editMessage(span, timeSpan, oldText) {
         const inputField = document.createElement("input");
         inputField.type = "text";
         inputField.value = oldText;
@@ -256,9 +267,9 @@
             let saved = localStorage.getItem("messages");
             if (saved) {
                 let messages = JSON.parse(saved);
-                const index = messages.indexOf(oldText);
+                const index = messages.findIndex(m => m.text === oldText && m.time === timeSpan.textContent);
                 if (index > -1) {
-                    messages[index] = newText;
+                    messages[index].text = newText;
                     localStorage.setItem("messages", JSON.stringify(messages));
                 }
             }
@@ -267,7 +278,6 @@
 
     loadMessages();
 
-    /* قلوب */
     function createHeart() {
         const heart = document.createElement("div");
         heart.classList.add("heart");
