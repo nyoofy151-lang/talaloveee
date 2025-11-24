@@ -143,16 +143,25 @@
     }
     typeEffect();
 
-    /* دردشة */
+
+    /* دردشة مع حفظ الرسائل */
     const chatBox = document.getElementById("chatBox");
     const input = document.getElementById("messageInput");
     const btn = document.getElementById("sendBtn");
 
-    btn.onclick = () => {
-        if (input.value.trim() === "") return;
+    // تحميل الرسائل من التخزين
+    function loadMessages() {
+        const saved = localStorage.getItem("messages");
+        if (saved) {
+            const messages = JSON.parse(saved);
+            messages.forEach(msg => addMessage(msg));
+        }
+    }
 
+    // إضافة الرسالة للصندوق + حفظها
+    function addMessage(text) {
         const p = document.createElement("p");
-        p.textContent = "💬 " + input.value;
+        p.textContent = "💬 " + text;
         p.style.background = "#ffe0f1";
         p.style.padding = "10px";
         p.style.borderRadius = "10px";
@@ -160,8 +169,27 @@
 
         chatBox.appendChild(p);
         chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    btn.onclick = () => {
+        if (input.value.trim() === "") return;
+
+        const msg = input.value;
+
+        addMessage(msg);
+
+        // حفظ الرسالة
+        let saved = localStorage.getItem("messages");
+        let messages = saved ? JSON.parse(saved) : [];
+        messages.push(msg);
+        localStorage.setItem("messages", JSON.stringify(messages));
+
         input.value = "";
     };
+
+    // عند فتح الصفحة — حمل الرسائل
+    loadMessages();
+
 
     /* قلوب */
     function createHeart() {
@@ -178,7 +206,7 @@
         setTimeout(() => heart.remove(), 6000);
     }
 
-    setInterval(createHeart, 250); 
+    setInterval(createHeart, 250);
 </script>
 
 </body>
