@@ -21,7 +21,6 @@
         text-shadow: 0 0 15px #ff4fa7;
     }
 
-    /* صندوق الكلام */
     #loveText {
         width: 85%;
         max-width: 700px;
@@ -37,7 +36,6 @@
         white-space: pre-line;
     }
 
-    /* صندوق الدردشة */
     #chatBox {
         width: 85%;
         max-width: 600px;
@@ -50,6 +48,30 @@
         box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
     }
 
+    .message {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffe0f1;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 5px 0;
+    }
+
+    .msg-text {
+        flex: 1;
+        margin-right: 10px;
+        word-break: break-word;
+    }
+
+    .deleteBtn {
+        background: transparent;
+        border: none;
+        color: #d6006e;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
     #messageInput {
         width: 60%;
         padding: 10px;
@@ -58,7 +80,7 @@
         font-size: 18px;
     }
 
-    #sendBtn, #clearBtn {
+    #sendBtn {
         padding: 10px 20px;
         background: #ff4fa7;
         border: none;
@@ -69,7 +91,6 @@
         margin-left: 10px;
     }
 
-    /* قلوب كثيرة */
     .heart {
         position: fixed;
         bottom: -10px;
@@ -98,7 +119,6 @@
 <div style="text-align:center; margin-bottom:30px;">
     <input id="messageInput" placeholder="اكتب رسالتك...">
     <button id="sendBtn">إرسال ❤️</button>
-    <button id="clearBtn">مسح كل الرسائل 🗑️</button>
 </div>
 
 <script>
@@ -145,12 +165,10 @@
     }
     typeEffect();
 
-
-    /* دردشة مع حفظ الرسائل */
+    /* دردشة مع حفظ الرسائل وحذف رسالة محددة */
     const chatBox = document.getElementById("chatBox");
     const input = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("clearBtn");
 
     // تحميل الرسائل من التخزين
     function loadMessages() {
@@ -161,23 +179,29 @@
         }
     }
 
-    // إضافة الرسالة للصندوق + حفظها
+    // إضافة رسالة للصندوق
     function addMessage(text) {
-        const p = document.createElement("p");
-        p.textContent = "💬 " + text;
-        p.style.background = "#ffe0f1";
-        p.style.padding = "10px";
-        p.style.borderRadius = "10px";
-        p.style.margin = "5px 0";
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message");
 
-        chatBox.appendChild(p);
+        const span = document.createElement("span");
+        span.classList.add("msg-text");
+        span.textContent = "💬 " + text;
+
+        const delBtn = document.createElement("button");
+        delBtn.classList.add("deleteBtn");
+        delBtn.textContent = "🗑️";
+        delBtn.onclick = () => deleteMessage(msgDiv, text);
+
+        msgDiv.appendChild(span);
+        msgDiv.appendChild(delBtn);
+        chatBox.appendChild(msgDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // إرسال الرسالة
+    // إرسال رسالة
     sendBtn.onclick = () => {
         if (input.value.trim() === "") return;
-
         const msg = input.value;
         addMessage(msg);
 
@@ -190,15 +214,18 @@
         input.value = "";
     };
 
-    // مسح كل الرسائل
-    clearBtn.onclick = () => {
-        localStorage.removeItem("messages");
-        chatBox.innerHTML = "";
-    };
+    // حذف رسالة معينة
+    function deleteMessage(element, text) {
+        element.remove();
+        let saved = localStorage.getItem("messages");
+        if (saved) {
+            let messages = JSON.parse(saved);
+            messages = messages.filter(msg => msg !== text); // حذف الرسالة المطابقة
+            localStorage.setItem("messages", JSON.stringify(messages));
+        }
+    }
 
-    // عند فتح الصفحة — حمل الرسائل
     loadMessages();
-
 
     /* قلوب */
     function createHeart() {
