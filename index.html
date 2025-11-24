@@ -2,131 +2,243 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>دردشة متعددة الغرف 💖</title>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<title>تالا ❤️</title>
 <style>
-body { margin:0; padding:0; font-family:"Cairo",sans-serif; background:#ffe6f2; overflow-x:hidden; }
-h1 { text-align:center; margin-top:20px; font-size:45px; color:#d6006e; text-shadow:0 0 15px #ff4fa7; }
-#loveText { width:85%; max-width:700px; margin:20px auto; background:white; border-radius:15px; padding:20px; font-size:22px; line-height:1.8; color:#7a0058; box-shadow:0 0 20px rgba(255,0,128,0.25); min-height:100px; white-space:pre-line; }
-#chatBox { width:85%; max-width:600px; height:300px; background:white; margin:20px auto; border-radius:15px; padding:15px; overflow-y:auto; box-shadow:0 0 15px rgba(255,0,128,0.3); }
-.message { display:flex; justify-content:space-between; align-items:center; background:#ffe0f1; padding:10px; border-radius:10px; margin:5px 0; flex-wrap:wrap; }
-.msg-text { flex:1; margin-right:10px; word-break:break-word; }
-.msg-user { font-weight:bold; margin-left:5px; color:#d6006e; }
-.msg-time { font-size:12px; color:#7a0058; margin-left:auto; }
-.deleteBtn, .editBtn, .saveBtn { background:transparent; border:none; cursor:pointer; font-size:18px; margin-left:5px; }
-.deleteBtn { color:#d6006e; }
-.editBtn { color:#1a73e8; }
-.saveBtn { color:#00a600; }
-#messageInput { width:60%; padding:10px; border:2px solid #ff4fa7; border-radius:10px; font-size:18px; }
-#sendBtn { padding:10px 20px; background:#ff4fa7; border:none; border-radius:10px; color:white; font-size:18px; cursor:pointer; margin-left:10px; }
-.heart { position:fixed; bottom:-10px; color:#ff1f8f; font-size:20px; animation:floatUp 4s linear infinite; opacity:0.8; z-index:9999; }
-@keyframes floatUp { 0%{transform:translateY(0) scale(1); opacity:1;} 100%{transform:translateY(-120vh) scale(1.5); opacity:0;} }
-#loginOverlay, #roomOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,230,242,0.95); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; }
-#loginOverlay input, #roomOverlay input { padding:10px; font-size:18px; border-radius:10px; border:2px solid #ff4fa7; margin-bottom:10px; }
-#loginOverlay button, #roomOverlay button { padding:10px 20px; background:#ff4fa7; border:none; border-radius:10px; color:white; font-size:18px; cursor:pointer; }
+    body {
+        margin:0; padding:0;
+        background:#ffe6f2;
+        font-family:"Cairo", sans-serif;
+        overflow-x:hidden;
+    }
+    h1 {
+        text-align:center; margin-top:20px; font-size:45px;
+        color:#d6006e; text-shadow:0 0 15px #ff4fa7;
+    }
+    #loveText {
+        width:85%; max-width:700px; margin:20px auto;
+        background:white; border-radius:15px; padding:20px;
+        font-size:22px; line-height:1.8; color:#7a0058;
+        box-shadow:0 0 20px rgba(255,0,128,0.25);
+        min-height:200px; white-space:pre-line;
+    }
+    #chatBox {
+        width:85%; max-width:600px; height:300px;
+        background:white; margin:20px auto; border-radius:15px;
+        padding:15px; overflow-y:auto; box-shadow:0 0 15px rgba(255,0,128,0.3);
+    }
+    .message {
+        display:flex; justify-content:space-between; align-items:center;
+        background:#ffe0f1; padding:10px; border-radius:10px; margin:5px 0;
+        flex-wrap:wrap;
+    }
+    .msg-text { flex:1; margin-right:10px; word-break:break-word; }
+    .msg-time { font-size:12px; color:#7a0058; margin-left:auto; }
+    .msg-user { font-weight:bold; margin-left:5px; color:#d6006e; }
+    .deleteBtn, .editBtn, .saveBtn { background:transparent; border:none; cursor:pointer; font-size:18px; margin-left:5px; }
+    .deleteBtn { color:#d6006e; }
+    .editBtn { color:#1a73e8; }
+    .saveBtn { color:#00a600; }
+    #messageInput { width:60%; padding:10px; border:2px solid #ff4fa7; border-radius:10px; font-size:18px; }
+    #sendBtn { padding:10px 20px; background:#ff4fa7; border:none; border-radius:10px; color:white; font-size:18px; cursor:pointer; margin-left:10px; }
+    .heart { position:fixed; bottom:-10px; color:#ff1f8f; font-size:20px; animation:floatUp 4s linear infinite; opacity:0.8; z-index:9999; }
+    @keyframes floatUp { 0%{transform:translateY(0) scale(1); opacity:1;} 100%{transform:translateY(-120vh) scale(1.5); opacity:0;} }
+    #loginOverlay {
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(255,230,242,0.95); display:flex; flex-direction:column;
+        justify-content:center; align-items:center; z-index:10000;
+    }
+    #loginOverlay input { padding:10px; font-size:18px; border-radius:10px; border:2px solid #ff4fa7; margin-bottom:10px; }
+    #loginOverlay button { padding:10px 20px; background:#ff4fa7; border:none; border-radius:10px; color:white; font-size:18px; cursor:pointer; }
 </style>
 </head>
 <body>
 
-<h1>💖 دردشة متعددة الغرف 💖</h1>
-<div id="loveText">أهلًا بك 💌 اختر غرفتك وابدأ الدردشة!</div>
+<h1>💖 تــالــا 💖</h1>
+<div id="loveText"></div>
 <div id="chatBox"></div>
-
 <div style="text-align:center; margin-bottom:30px;">
     <input id="messageInput" placeholder="اكتب رسالتك...">
     <button id="sendBtn">إرسال ❤️</button>
 </div>
 
+<!-- نافذة تسجيل الدخول -->
 <div id="loginOverlay">
     <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا">
     <button id="loginBtn">دخول</button>
 </div>
 
-<div id="roomOverlay">
-    <input type="text" id="roomInput" placeholder="اسم الغرفة">
-    <button id="enterRoomBtn">دخول الغرفة</button>
-</div>
-
 <script>
-const firebaseConfig = {
-    apiKey: "ضع هنا API_KEY",
-    authDomain: "ضع هنا AUTH_DOMAIN",
-    databaseURL: "ضع هنا DATABASE_URL",
-    projectId: "ضع هنا PROJECT_ID",
-    storageBucket: "ضع هنا STORAGE_BUCKET",
-    messagingSenderId: "ضع هنا MESSAGING_SENDER_ID",
-    appId: "ضع هنا APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+    // نص الحب
+    const text = `تدرين؟
+أنتِ الشخص الوحيد اللي كل شي معه يصير أحلى.
+كلامك غير، حضورك غير، وحتى عتابك يختلف…
+الوقت اللي أقضيه معك والله يكون أجمل من أي شي بالدنيا.
+كل اللي أبيه… إني أشوفك مبسوطة،
+وأشوف الفرح ساكن عيونك طول العمر.
+عوضتيني عن ناس كثير، وعن أشياء كنت فاقدها…
+صرتي كل شي بحياتي.
+أحبك… وأعشقك…
+وجودك معي أكبر نعمة،
+وما أدري شسويت عشان ربي يهديني إنسانة مثلك.
+الله يديمك لي، ويديم ضحكتك، ويبعد عنك كل شي يضايقك.
+أنا بخير دامك معي،
+أنتِ اللي تسعدين يومي، وتطيرين همّي،
+وتعرفين تنتشلينّي من حزني بكلمة أو بضحكة.
+فيك كل شي حلو…!
+ولو يسألوني: ليه تحبها كذا؟
+بقول: لو أشكرها من اليوم لبكرة ما أكمل…
+اللي بيني وبينها أكبر من كلام.
+أحبك…
+وأهلي كلهم يعرفون قد إيش غلاك بقلبي،
+وأقسم بالله ما ندمت يوم إني حبيتك…
+ياخي أحبك، والله أحبك،
+ومدري شقول أو كيف أعبر لك عن كمية الحب اللي فيني 🤎🤎`;
 
-let username="", room="";
-const loginOverlay = document.getElementById("loginOverlay");
-const usernameInput = document.getElementById("usernameInput");
-const loginBtn = document.getElementById("loginBtn");
-const roomOverlay = document.getElementById("roomOverlay");
-const roomInput = document.getElementById("roomInput");
-const enterRoomBtn = document.getElementById("enterRoomBtn");
-const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
+    let index = 0;
+    function typeEffect(){
+        if(index < text.length){
+            document.getElementById("loveText").innerHTML += text.charAt(index);
+            index++;
+            setTimeout(typeEffect,30);
+        }
+    }
+    typeEffect();
 
-loginBtn.onclick = ()=> {
-    const name = usernameInput.value.trim();
-    if(!name) return alert("اكتب اسمك!");
-    username=name; loginOverlay.style.display="none"; roomOverlay.style.display="flex";
-};
-usernameInput.addEventListener("keydown", e=>{ if(e.key==="Enter") loginBtn.onclick(); });
+    const chatBox = document.getElementById("chatBox");
+    const input = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
 
-enterRoomBtn.onclick = ()=>{
-    const r = roomInput.value.trim();
-    if(!r) return alert("اكتب اسم الغرفة!");
-    room=r; roomOverlay.style.display="none"; loadMessages();
-};
-roomInput.addEventListener("keydown", e=>{ if(e.key==="Enter") enterRoomBtn.onclick(); });
+    let username = localStorage.getItem("username") || "";
 
-function addMessage(text,user,time,id){
-    const msgDiv = document.createElement("div"); msgDiv.classList.add("message");
-    const userSpan = document.createElement("span"); userSpan.classList.add("msg-user"); userSpan.textContent=user;
-    const textSpan = document.createElement("span"); textSpan.classList.add("msg-text"); textSpan.textContent=text;
-    const timeSpan = document.createElement("span"); timeSpan.classList.add("msg-time"); timeSpan.textContent=time;
-    const editBtn = document.createElement("button"); editBtn.classList.add("editBtn"); editBtn.textContent="✏️";
-    editBtn.onclick = ()=>{
-        if(user!==username) return alert("لا تستطيع تعديل رسالة شخص آخر!");
-        const inputField = document.createElement("input"); inputField.type="text"; inputField.value=text; inputField.style.flex="1";
-        textSpan.replaceWith(inputField);
-        const saveBtn=document.createElement("button"); saveBtn.classList.add("saveBtn"); saveBtn.textContent="💾";
+    const loginOverlay = document.getElementById("loginOverlay");
+    const usernameInput = document.getElementById("usernameInput");
+    const loginBtn = document.getElementById("loginBtn");
+
+    // تسجيل الدخول
+    function login(){
+        const name = usernameInput.value.trim();
+        if(name==="") return alert("اكتب اسمك!");
+        username = name;
+        localStorage.setItem("username", username);
+        loginOverlay.style.display="none";
+    }
+    loginBtn.onclick = login;
+    usernameInput.addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+    if(username) loginOverlay.style.display="none";
+
+    function loadMessages(){
+        const saved = localStorage.getItem("messages");
+        if(saved){
+            const messages = JSON.parse(saved);
+            messages.forEach(msgObj=> addMessage(msgObj.text, msgObj.time, msgObj.user));
+        }
+    }
+
+    function addMessage(text,time,user){
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message");
+
+        const userSpan = document.createElement("span");
+        userSpan.classList.add("msg-user");
+        userSpan.textContent = user;
+
+        const span = document.createElement("span");
+        span.classList.add("msg-text");
+        span.textContent = text;
+
+        const timeSpan = document.createElement("span");
+        timeSpan.classList.add("msg-time");
+        timeSpan.textContent = time;
+
+        const editBtn = document.createElement("button");
+        editBtn.classList.add("editBtn");
+        editBtn.textContent = "✏️";
+        editBtn.onclick = ()=> editMessage(span, timeSpan, text, user);
+
+        const delBtn = document.createElement("button");
+        delBtn.classList.add("deleteBtn");
+        delBtn.textContent = "🗑️";
+        delBtn.onclick = ()=> deleteMessage(msgDiv, text, time, user);
+
+        msgDiv.appendChild(userSpan);
+        msgDiv.appendChild(span);
+        msgDiv.appendChild(timeSpan);
+        msgDiv.appendChild(editBtn);
+        msgDiv.appendChild(delBtn);
+
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function saveMessage(msg,time,user){
+        let saved = localStorage.getItem("messages");
+        let messages = saved ? JSON.parse(saved) : [];
+        messages.push({text:msg,time:time,user:user});
+        localStorage.setItem("messages",JSON.stringify(messages));
+    }
+
+    function deleteMessage(element,text,time,user){
+        element.remove();
+        let saved = localStorage.getItem("messages");
+        if(saved){
+            let messages = JSON.parse(saved);
+            messages = messages.filter(m=>!(m.text===text && m.time===time && m.user===user));
+            localStorage.setItem("messages",JSON.stringify(messages));
+        }
+    }
+
+    function editMessage(span,timeSpan,oldText,user){
+        const inputField = document.createElement("input");
+        inputField.type="text"; inputField.value=oldText; inputField.style.flex="1";
+        span.replaceWith(inputField);
+
+        const saveBtn = document.createElement("button");
+        saveBtn.classList.add("saveBtn"); saveBtn.textContent="💾";
         inputField.parentNode.insertBefore(saveBtn,inputField.nextSibling);
-        saveBtn.onclick=()=>{ const newText=inputField.value; inputField.replaceWith(textSpan); saveBtn.remove(); textSpan.textContent=newText; db.ref('rooms/'+room+'/'+id).update({text:newText}); };
-    };
-    const delBtn=document.createElement("button"); delBtn.classList.add("deleteBtn"); delBtn.textContent="🗑️";
-    delBtn.onclick = ()=>{ if(user!==username)return alert("لا تستطيع حذف رسالة شخص آخر!"); db.ref('rooms/'+room+'/'+id).remove(); };
 
-    msgDiv.appendChild(userSpan); msgDiv.appendChild(textSpan); msgDiv.appendChild(timeSpan); msgDiv.appendChild(editBtn); msgDiv.appendChild(delBtn);
-    chatBox.appendChild(msgDiv); chatBox.scrollTop = chatBox.scrollHeight;
-}
+        function saveEdit(){
+            const newText = inputField.value;
+            inputField.replaceWith(span); saveBtn.remove(); span.textContent=newText;
 
-function sendMessage(){
-    if(!username || !room || input.value.trim()==="") return;
-    const msg=input.value;
-    const time=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    const newMsgRef=db.ref('rooms/'+room).push();
-    newMsgRef.set({user:username,text:msg,time:time}); input.value="";
-}
-sendBtn.onclick=sendMessage;
-input.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+            let saved = localStorage.getItem("messages");
+            if(saved){
+                let messages = JSON.parse(saved);
+                const index = messages.findIndex(m=>m.text===oldText && m.time===timeSpan.textContent && m.user===user);
+                if(index>-1){ messages[index].text=newText; localStorage.setItem("messages",JSON.stringify(messages)); }
+            }
+        }
 
-function loadMessages(){
-    const ref=db.ref('rooms/'+room); chatBox.innerHTML="";
-    ref.on('child_added', snap=>{ const m=snap.val(); addMessage(m.text,m.user,m.time,snap.key); });
-    ref.on('child_changed', snap=>{ chatBox.innerHTML=""; ref.once('value',s=>{ s.forEach(c=>{ const m=c.val(); addMessage(m.text,m.user,m.time,c.key); }); }); });
-    ref.on('child_removed', snap=>{ chatBox.innerHTML=""; ref.once('value',s=>{ s.forEach(c=>{ const m=c.val(); addMessage(m.text,m.user,m.time,c.key); }); }); });
-}
+        saveBtn.onclick = saveEdit;
+        inputField.addEventListener("keydown", e=>{ if(e.key==="Enter") saveEdit(); });
+    }
 
-// تأثير القلوب
-function createHeart(){ const heart=document.createElement("div"); heart.classList.add("heart"); heart.textContent="💗"; heart.style.left=Math.random()*window.innerWidth+"px"; heart.style.fontSize=(20+Math.random()*30)+"px"; heart.style.animationDuration=(3+Math.random()*3)+"s"; document.body.appendChild(heart); setTimeout(()=>heart.remove(),6000);}
-setInterval(createHeart,250);
+    function sendMessage(){
+        if(input.value.trim()==="") return;
+        if(!username) return alert("أدخل اسمك أولاً!");
+        const msg = input.value;
+        const now = new Date();
+        const time = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        addMessage(msg,time,username);
+        saveMessage(msg,time,username);
+        input.value="";
+    }
+
+    sendBtn.onclick = sendMessage;
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+
+    loadMessages();
+
+    function createHeart(){
+        const heart = document.createElement("div");
+        heart.classList.add("heart");
+        heart.textContent="💗";
+        heart.style.left=Math.random()*window.innerWidth+"px";
+        heart.style.fontSize=(20+Math.random()*30)+"px";
+        heart.style.animationDuration=(3+Math.random()*3)+"s";
+        document.body.appendChild(heart);
+        setTimeout(()=>heart.remove(),6000);
+    }
+    setInterval(createHeart,250);
 </script>
 
 </body>
