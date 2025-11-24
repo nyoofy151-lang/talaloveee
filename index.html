@@ -38,13 +38,11 @@ h1 { text-align:center; margin-top:20px; font-size:45px; color:#d6006e; text-sha
     <button id="sendBtn">إرسال ❤️</button>
 </div>
 
-<!-- تسجيل الدخول -->
 <div id="loginOverlay">
     <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا">
     <button id="loginBtn">دخول</button>
 </div>
 
-<!-- اختيار / إنشاء غرفة -->
 <div id="roomOverlay">
     <input type="text" id="roomInput" placeholder="اسم الغرفة">
     <button id="enterRoomBtn">دخول الغرفة</button>
@@ -63,145 +61,71 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+let username="", room="";
 const loginOverlay = document.getElementById("loginOverlay");
 const usernameInput = document.getElementById("usernameInput");
 const loginBtn = document.getElementById("loginBtn");
-let username = "";
-
 const roomOverlay = document.getElementById("roomOverlay");
 const roomInput = document.getElementById("roomInput");
 const enterRoomBtn = document.getElementById("enterRoomBtn");
-let room = "";
-
 const chatBox = document.getElementById("chatBox");
 const input = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
-// تسجيل الدخول
 loginBtn.onclick = ()=> {
     const name = usernameInput.value.trim();
     if(!name) return alert("اكتب اسمك!");
-    username = name;
-    loginOverlay.style.display="none";
-    roomOverlay.style.display="flex";
+    username=name; loginOverlay.style.display="none"; roomOverlay.style.display="flex";
 };
 usernameInput.addEventListener("keydown", e=>{ if(e.key==="Enter") loginBtn.onclick(); });
 
-// دخول الغرفة
 enterRoomBtn.onclick = ()=>{
     const r = roomInput.value.trim();
     if(!r) return alert("اكتب اسم الغرفة!");
-    room = r;
-    roomOverlay.style.display="none";
-    loadMessages();
+    room=r; roomOverlay.style.display="none"; loadMessages();
 };
 roomInput.addEventListener("keydown", e=>{ if(e.key==="Enter") enterRoomBtn.onclick(); });
 
-// إضافة رسالة للواجهة
 function addMessage(text,user,time,id){
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message");
-
-    const userSpan = document.createElement("span");
-    userSpan.classList.add("msg-user");
-    userSpan.textContent = user;
-
-    const textSpan = document.createElement("span");
-    textSpan.classList.add("msg-text");
-    textSpan.textContent = text;
-
-    const timeSpan = document.createElement("span");
-    timeSpan.classList.add("msg-time");
-    timeSpan.textContent = time;
-
-    // أزرار تعديل وحذف للرسائل الخاصة بالمستخدم
-    const editBtn = document.createElement("button");
-    editBtn.classList.add("editBtn");
-    editBtn.textContent="✏️";
+    const msgDiv = document.createElement("div"); msgDiv.classList.add("message");
+    const userSpan = document.createElement("span"); userSpan.classList.add("msg-user"); userSpan.textContent=user;
+    const textSpan = document.createElement("span"); textSpan.classList.add("msg-text"); textSpan.textContent=text;
+    const timeSpan = document.createElement("span"); timeSpan.classList.add("msg-time"); timeSpan.textContent=time;
+    const editBtn = document.createElement("button"); editBtn.classList.add("editBtn"); editBtn.textContent="✏️";
     editBtn.onclick = ()=>{
         if(user!==username) return alert("لا تستطيع تعديل رسالة شخص آخر!");
-        const inputField = document.createElement("input");
-        inputField.type="text"; inputField.value=text; inputField.style.flex="1";
+        const inputField = document.createElement("input"); inputField.type="text"; inputField.value=text; inputField.style.flex="1";
         textSpan.replaceWith(inputField);
-        const saveBtn = document.createElement("button"); saveBtn.classList.add("saveBtn"); saveBtn.textContent="💾";
+        const saveBtn=document.createElement("button"); saveBtn.classList.add("saveBtn"); saveBtn.textContent="💾";
         inputField.parentNode.insertBefore(saveBtn,inputField.nextSibling);
-
-        saveBtn.onclick = ()=>{
-            const newText = inputField.value;
-            inputField.replaceWith(textSpan); saveBtn.remove(); textSpan.textContent=newText;
-            db.ref('rooms/'+room+'/'+id).update({text:newText});
-        };
+        saveBtn.onclick=()=>{ const newText=inputField.value; inputField.replaceWith(textSpan); saveBtn.remove(); textSpan.textContent=newText; db.ref('rooms/'+room+'/'+id).update({text:newText}); };
     };
+    const delBtn=document.createElement("button"); delBtn.classList.add("deleteBtn"); delBtn.textContent="🗑️";
+    delBtn.onclick = ()=>{ if(user!==username)return alert("لا تستطيع حذف رسالة شخص آخر!"); db.ref('rooms/'+room+'/'+id).remove(); };
 
-    const delBtn = document.createElement("button");
-    delBtn.classList.add("deleteBtn");
-    delBtn.textContent="🗑️";
-    delBtn.onclick = ()=>{
-        if(user!==username) return alert("لا تستطيع حذف رسالة شخص آخر!");
-        db.ref('rooms/'+room+'/'+id).remove();
-    };
-
-    msgDiv.appendChild(userSpan);
-    msgDiv.appendChild(textSpan);
-    msgDiv.appendChild(timeSpan);
-    msgDiv.appendChild(editBtn);
-    msgDiv.appendChild(delBtn);
-
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    msgDiv.appendChild(userSpan); msgDiv.appendChild(textSpan); msgDiv.appendChild(timeSpan); msgDiv.appendChild(editBtn); msgDiv.appendChild(delBtn);
+    chatBox.appendChild(msgDiv); chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// إرسال رسالة
 function sendMessage(){
     if(!username || !room || input.value.trim()==="") return;
-    const msg = input.value;
-    const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    const newMsgRef = db.ref('rooms/'+room).push();
-    newMsgRef.set({user:username,text:msg,time:time});
-    input.value="";
+    const msg=input.value;
+    const time=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const newMsgRef=db.ref('rooms/'+room).push();
+    newMsgRef.set({user:username,text:msg,time:time}); input.value="";
 }
-sendBtn.onclick = sendMessage;
+sendBtn.onclick=sendMessage;
 input.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
 
-// تحميل الرسائل في الوقت الحقيقي
 function loadMessages(){
-    const ref = db.ref('rooms/'+room);
-    chatBox.innerHTML="";
-    ref.on('child_added', snapshot=>{
-        const msg = snapshot.val();
-        addMessage(msg.text,msg.user,msg.time,snapshot.key);
-    });
-    ref.on('child_changed', snapshot=>{
-        chatBox.innerHTML="";
-        ref.once('value',snap=>{
-            snap.forEach(child=>{
-                const m = child.val();
-                addMessage(m.text,m.user,m.time,child.key);
-            });
-        });
-    });
-    ref.on('child_removed', snapshot=>{
-        chatBox.innerHTML="";
-        ref.once('value',snap=>{
-            snap.forEach(child=>{
-                const m = child.val();
-                addMessage(m.text,m.user,m.time,child.key);
-            });
-        });
-    });
+    const ref=db.ref('rooms/'+room); chatBox.innerHTML="";
+    ref.on('child_added', snap=>{ const m=snap.val(); addMessage(m.text,m.user,m.time,snap.key); });
+    ref.on('child_changed', snap=>{ chatBox.innerHTML=""; ref.once('value',s=>{ s.forEach(c=>{ const m=c.val(); addMessage(m.text,m.user,m.time,c.key); }); }); });
+    ref.on('child_removed', snap=>{ chatBox.innerHTML=""; ref.once('value',s=>{ s.forEach(c=>{ const m=c.val(); addMessage(m.text,m.user,m.time,c.key); }); }); });
 }
 
 // تأثير القلوب
-function createHeart(){
-    const heart = document.createElement("div");
-    heart.classList.add("heart");
-    heart.textContent="💗";
-    heart.style.left=Math.random()*window.innerWidth+"px";
-    heart.style.fontSize=(20+Math.random()*30)+"px";
-    heart.style.animationDuration=(3+Math.random()*3)+"s";
-    document.body.appendChild(heart);
-    setTimeout(()=>heart.remove(),6000);
-}
+function createHeart(){ const heart=document.createElement("div"); heart.classList.add("heart"); heart.textContent="💗"; heart.style.left=Math.random()*window.innerWidth+"px"; heart.style.fontSize=(20+Math.random()*30)+"px"; heart.style.animationDuration=(3+Math.random()*3)+"s"; document.body.appendChild(heart); setTimeout(()=>heart.remove(),6000);}
 setInterval(createHeart,250);
 </script>
 
